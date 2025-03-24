@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom'; // Import necessario per i matchers come toBeInTheDocument
 import QuizResults from './QuizResults';
 
 describe('QuizResults Component', () => {
@@ -7,7 +8,7 @@ describe('QuizResults Component', () => {
     score: 7,
     totalQuestions: 10,
     onRestart: jest.fn(),
-    timeTaken: 120
+    timeTaken: 120,
   };
 
   beforeEach(() => {
