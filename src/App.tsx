@@ -9,15 +9,18 @@ const App: React.FC = () => {
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizFinished, setQuizFinished] = useState(false);
   const [finalScore, setFinalScore] = useState(0);
+  const [timeTaken, setTimeTaken] = useState(0);
 
   const startQuiz = () => {
     setQuizStarted(true);
     setQuizFinished(false);
-    setFinalScore(0); // Reset
+    setFinalScore(0);
+    setTimeTaken(0);
   };
 
-  const handleQuizFinish = (score: number) => {
+  const handleQuizFinish = (score: number, time: number) => {
     setFinalScore(score);
+    setTimeTaken(time);
     setQuizFinished(true);
   };
 
@@ -35,6 +38,7 @@ const App: React.FC = () => {
           score={finalScore}
           totalQuestions={quizQuestions.length}
           onRestart={startQuiz}
+          timeTaken={timeTaken}
         />
       )}
     </div>

@@ -9,4 +9,5 @@ export interface QuizState {
   currentQuestionIndex: number;
   score: number;
   isFinished: boolean;
+  timeTaken: number;
 }

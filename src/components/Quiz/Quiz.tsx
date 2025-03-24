@@ -1,37 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Question, QuizState } from '../../types/quiz';
+import { Question } from '../../types/quiz';
+import { motion, AnimatePresence } from 'framer-motion';
 import './Quiz.css';
 
 interface QuizProps {
   questions: Question[];
-  onFinish: (score: number) => void;
+  onFinish: (score: number, time: number) => void;
 }
 
 const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
-  const [state, setState] = useState<QuizState>({
-    currentQuestionIndex: 0,
-    score: 0,
-    isFinished: false,
-  });
-
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [score, setScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
-  const [timeLeft, setTimeLeft] = useState<number>(10); // 10 secondi per domanda
+  const [timeLeft, setTimeLeft] = useState<number>(10);
+  const [quizStartTime] = useState<number>(Date.now());
+  const [showQuestion, setShowQuestion] = useState(true);
 
-  const currentQuestion = questions[state.currentQuestionIndex];
+  const currentQuestion = questions[currentQuestionIndex];
 
-  // Reset timer quando cambia la domanda
   useEffect(() => {
     setTimeLeft(10);
-  }, [state.currentQuestionIndex]);
+  }, [currentQuestionIndex]);
 
-  // Timer countdown
   useEffect(() => {
     if (timeLeft > 0 && !selectedAnswer) {
       const timer = setTimeout(() => setTimeLeft(prev => prev - 1), 1000);
       return () => clearTimeout(timer);
     } else if (timeLeft === 0 && !selectedAnswer) {
-      // Tempo scaduto, passa alla prossima domanda
       handleTimeout();
     }
   }, [timeLeft, selectedAnswer]);
@@ -39,31 +35,32 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
   const handleTimeout = () => {
     setSelectedAnswer('');
     setIsAnswerCorrect(false);
-
     setTimeout(() => {
       moveToNextQuestion(false);
     }, 1000);
   };
 
   const moveToNextQuestion = (isCorrect: boolean) => {
-    setState(prevState => ({
-      ...prevState,
-      score: isCorrect ? prevState.score + 1 : prevState.score,
-      currentQuestionIndex: prevState.currentQuestionIndex + 1,
-      isFinished: prevState.currentQuestionIndex === questions.length - 1,
-    }));
+    setShowQuestion(false);
+    const newScore = isCorrect ? score + 1 : score;
+    setScore(newScore);
 
-    setSelectedAnswer(null);
-    setIsAnswerCorrect(null);
-    setTimeLeft(10);
-
-    if (state.currentQuestionIndex === questions.length - 1) {
-      onFinish(state.score + (isCorrect ? 1 : 0));
-    }
+    setTimeout(() => {
+      if (currentQuestionIndex === questions.length - 1) {
+        const totalTime = Math.floor((Date.now() - quizStartTime) / 1000);
+        onFinish(newScore, totalTime);
+      } else {
+        setCurrentQuestionIndex(prev => prev + 1);
+        setSelectedAnswer(null);
+        setIsAnswerCorrect(null);
+        setTimeLeft(10);
+        setShowQuestion(true);
+      }
+    }, 300);
   };
 
   const handleAnswer = (answer: string) => {
-    if (selectedAnswer !== null) return; // Previene risposte multiple
+    if (selectedAnswer) return;
 
     setSelectedAnswer(answer);
     const isCorrect = answer === currentQuestion.correctAnswer;
@@ -74,71 +71,82 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
     }, 1000);
   };
 
-  // Calcola il colore del timer basato sul tempo rimanente
-  const getTimerColor = () => {
-    if (timeLeft > 7) return '#4CAF50'; // Verde
-    if (timeLeft > 3) return '#FFC107'; // Giallo
-    return '#F44336'; // Rosso
+  const questionVariants = {
+    initial: { opacity: 0, x: 50 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -50 }
   };
 
   return (
     <div className="quiz-container">
-      {/* Progress Bar */}
-      <div className="quiz-progress">
-        <div className="progress-text">
-          Domanda {state.currentQuestionIndex + 1} di {questions.length}
-        </div>
-        <div className="score-text">
-          Punteggio: {state.score}
-        </div>
-      </div>
-
-      {/* Timer */}
-      <div className="quiz-timer-container">
-        <div className="time-left">{timeLeft}s</div>
-        <div className="quiz-timer">
-          <div
-            className="quiz-timer-bar"
-            style={{
-              width: `${(timeLeft / 10) * 100}%`,
-              backgroundColor: getTimerColor(),
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Question Box */}
-      <div className="quiz-question">
-        <h2>{currentQuestion.question}</h2>
-        
-        <div className="quiz-options">
-          {currentQuestion.options.map((option, index) => (
-            <button
-              key={index}
-              className={`quiz-option ${
-                selectedAnswer === option
-                  ? isAnswerCorrect
-                    ? 'correct'
-                    : 'incorrect'
-                  : ''
-              }`}
-              onClick={() => handleAnswer(option)}
-              disabled={!!selectedAnswer}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Additional Info */}
-      <div className="quiz-info">
-        {selectedAnswer && (
-          <div className={`feedback-message ${isAnswerCorrect ? 'correct' : 'incorrect'}`}>
-            {isAnswerCorrect ? 'Corretto!' : 'Sbagliato!'}
+      <motion.div 
+        className="quiz-header"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="quiz-progress">
+          <div className="progress-text">
+            Domanda {currentQuestionIndex + 1} di {questions.length}
           </div>
+          <div className="score-text">
+            Punteggio: {score}
+          </div>
+        </div>
+
+        <div className="quiz-timer-container">
+          <div className="time-left">{timeLeft}s</div>
+          <div className="quiz-timer">
+            <motion.div
+              className="quiz-timer-bar"
+              initial={{ width: "100%" }}
+              animate={{ 
+                width: `${(timeLeft / 10) * 100}%`,
+                backgroundColor: timeLeft > 7 ? '#4CAF50' : timeLeft > 3 ? '#FFC107' : '#F44336',
+              }}
+              transition={{ duration: 1, ease: "linear" }}
+            />
+          </div>
+        </div>
+      </motion.div>
+
+      <AnimatePresence mode='wait'>
+        {showQuestion && (
+          <motion.div
+            key={currentQuestionIndex}
+            className="quiz-question"
+            variants={questionVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.3 }}
+          >
+            <h2>{currentQuestion.question}</h2>
+            <div className="quiz-options">
+              {currentQuestion.options.map((option, index) => (
+                <motion.button
+                  key={index}
+                  onClick={() => handleAnswer(option)}
+                  className={`quiz-option ${
+                    selectedAnswer === option
+                      ? isAnswerCorrect
+                        ? 'correct'
+                        : 'incorrect'
+                      : ''
+                  }`}
+                  disabled={!!selectedAnswer}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ scale: selectedAnswer ? 1 : 1.02 }}
+                  whileTap={{ scale: selectedAnswer ? 1 : 0.98 }}
+                >
+                  {option}
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
         )}
-      </div>
+      </AnimatePresence>
     </div>
   );
 };
