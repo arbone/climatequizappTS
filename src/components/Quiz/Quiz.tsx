@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Question } from '../../types/quiz';
+import { Achievement, ACHIEVEMENTS } from '../../types/achievements';  // Aggiorna questo percorso
 import { motion, AnimatePresence } from 'framer-motion';
+import AchievementPopup from '../Achievements/AchievementPopup';  // Questo dovrebbe essere corretto
 import './Quiz.css';
+
 
 interface QuizProps {
   questions: Question[];
@@ -20,6 +23,8 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [isStreak, setIsStreak] = useState(false);
   const [correctStreak, setCorrectStreak] = useState(0);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
 
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -35,6 +40,25 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
       handleTimeout();
     }
   }, [timeLeft, selectedAnswer]);
+
+  const checkAchievements = (finalScore: number, totalTime: number) => {
+    const newAchievements = ACHIEVEMENTS.filter(achievement => 
+      !achievements.includes(achievement) && 
+      achievement.condition(finalScore, totalTime, questions.length)
+    );
+
+    if (newAchievements.length > 0) {
+      setAchievements([...achievements, ...newAchievements]);
+      let delay = 0;
+      newAchievements.forEach((achievement) => {
+        setTimeout(() => {
+          setCurrentAchievement(achievement);
+          setTimeout(() => setCurrentAchievement(null), 3000);
+        }, delay);
+        delay += 3500;
+      });
+    }
+  };
 
   const handleTimeout = () => {
     setSelectedAnswer('');
@@ -56,6 +80,7 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
     setTimeout(() => {
       if (currentQuestionIndex === questions.length - 1) {
         const totalTime = Math.floor((Date.now() - quizStartTime) / 1000);
+        checkAchievements(newScore, totalTime);
         onFinish(newScore, totalTime);
       } else {
         setCurrentQuestionIndex(prev => prev + 1);
@@ -192,6 +217,15 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
               ))}
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {currentAchievement && (
+          <AchievementPopup 
+            achievement={currentAchievement}
+            onClose={() => setCurrentAchievement(null)}
+          />
         )}
       </AnimatePresence>
     </div>
