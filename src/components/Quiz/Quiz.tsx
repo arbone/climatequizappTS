@@ -16,6 +16,10 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
   const [timeLeft, setTimeLeft] = useState<number>(30);
   const [quizStartTime] = useState<number>(Date.now());
   const [showQuestion, setShowQuestion] = useState(true);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [isStreak, setIsStreak] = useState(false);
+  const [correctStreak, setCorrectStreak] = useState(0);
 
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -35,6 +39,9 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
   const handleTimeout = () => {
     setSelectedAnswer('');
     setIsAnswerCorrect(false);
+    setShowFeedback(true);
+    setFeedbackMessage('Tempo scaduto!');
+    setCorrectStreak(0);
     setTimeout(() => {
       moveToNextQuestion(false);
     }, 1000);
@@ -44,6 +51,7 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
     setShowQuestion(false);
     const newScore = isCorrect ? score + 1 : score;
     setScore(newScore);
+    setShowFeedback(false);
 
     setTimeout(() => {
       if (currentQuestionIndex === questions.length - 1) {
@@ -65,6 +73,22 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
     setSelectedAnswer(answer);
     const isCorrect = answer === currentQuestion.correctAnswer;
     setIsAnswerCorrect(isCorrect);
+    setShowFeedback(true);
+
+    if (isCorrect) {
+      const newStreak = correctStreak + 1;
+      setCorrectStreak(newStreak);
+      if (newStreak >= 3) {
+        setIsStreak(true);
+        setFeedbackMessage('🔥 Hot Streak!');
+      } else {
+        setFeedbackMessage('Corretto! 👍');
+      }
+    } else {
+      setCorrectStreak(0);
+      setIsStreak(false);
+      setFeedbackMessage('Sbagliato 😔');
+    }
 
     setTimeout(() => {
       moveToNextQuestion(isCorrect);
@@ -75,6 +99,12 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
     initial: { opacity: 0, x: 50 },
     animate: { opacity: 1, x: 0 },
     exit: { opacity: 0, x: -50 }
+  };
+
+  const feedbackVariants = {
+    initial: { opacity: 0, y: -20 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: 20 }
   };
 
   return (
@@ -90,24 +120,41 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
           </div>
           <div className="score-text">
             Punteggio: {score}
+            {isStreak && <span className="streak-icon">🔥</span>}
           </div>
         </div>
 
         <div className="quiz-timer-container">
-          <div className="time-left">{timeLeft}s</div>
+          <div className={`time-left ${timeLeft <= 5 ? 'time-critical' : ''}`}>
+            {timeLeft}s
+          </div>
           <div className="quiz-timer">
             <motion.div
               className="quiz-timer-bar"
               initial={{ width: "100%" }}
               animate={{ 
-                width: `${(timeLeft / 10) * 100}%`,
-                backgroundColor: timeLeft > 7 ? '#4CAF50' : timeLeft > 3 ? '#FFC107' : '#F44336',
+                width: `${(timeLeft / 30) * 100}%`,
+                backgroundColor: timeLeft > 15 ? '#4CAF50' : timeLeft > 5 ? '#FFC107' : '#F44336'
               }}
               transition={{ duration: 1, ease: "linear" }}
             />
           </div>
         </div>
       </motion.div>
+
+      <AnimatePresence mode='wait'>
+        {showFeedback && (
+          <motion.div
+            className={`feedback-overlay ${isAnswerCorrect ? 'correct' : 'incorrect'}`}
+            variants={feedbackVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            {feedbackMessage}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence mode='wait'>
         {showQuestion && (
