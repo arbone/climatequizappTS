@@ -13,14 +13,14 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
   const [score, setScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
-  const [timeLeft, setTimeLeft] = useState<number>(10);
+  const [timeLeft, setTimeLeft] = useState<number>(30);
   const [quizStartTime] = useState<number>(Date.now());
   const [showQuestion, setShowQuestion] = useState(true);
 
   const currentQuestion = questions[currentQuestionIndex];
 
   useEffect(() => {
-    setTimeLeft(10);
+    setTimeLeft(30);
   }, [currentQuestionIndex]);
 
   useEffect(() => {
@@ -53,7 +53,7 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
         setCurrentQuestionIndex(prev => prev + 1);
         setSelectedAnswer(null);
         setIsAnswerCorrect(null);
-        setTimeLeft(10);
+        setTimeLeft(30);
         setShowQuestion(true);
       }
     }, 300);
