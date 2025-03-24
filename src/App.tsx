@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Intro from './components/Intro/Intro';
 import Quiz from './components/Quiz/Quiz';
+import QuizResults from './components/QuizResults/QuizResults';
 import { quizQuestions } from './data/quizQuestions';
 import './App.css';
 
@@ -11,6 +12,8 @@ const App: React.FC = () => {
 
   const startQuiz = () => {
     setQuizStarted(true);
+    setQuizFinished(false);
+    setFinalScore(0); // Reset
   };
 
   const handleQuizFinish = (score: number) => {
@@ -28,11 +31,11 @@ const App: React.FC = () => {
           onFinish={handleQuizFinish} 
         />
       ) : (
-        <div>
-          <h2>Quiz completato!</h2>
-          <p>Punteggio finale: {finalScore}</p>
-          {/* Aggiungeremo la schermata finale più tardi */}
-        </div>
+        <QuizResults
+          score={finalScore}
+          totalQuestions={quizQuestions.length}
+          onRestart={startQuiz}
+        />
       )}
     </div>
   );
