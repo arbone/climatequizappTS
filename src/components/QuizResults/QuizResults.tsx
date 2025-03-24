@@ -10,6 +10,13 @@ interface QuizResultsProps {
   timeTaken: number;
 }
 
+interface ScoreData {
+  score: number;
+  date: string;
+  total: number;
+  time: number;
+}
+
 // Configura react-modal
 Modal.setAppElement('#root');
 
@@ -20,32 +27,39 @@ const QuizResults: React.FC<QuizResultsProps> = ({
   timeTaken,
 }) => {
   const [confirmRestart, setConfirmRestart] = useState(false);
-  const [savedScores, setSavedScores] = useState<Array<{
-    score: number;
-    date: string;
-    total: number;
-    time: number;
-  }>>([]);
+  const [savedScores, setSavedScores] = useState<ScoreData[]>([]);
   const [showAnimation, setShowAnimation] = useState(false);
 
   useEffect(() => {
     // Carica i punteggi salvati
-    const scores = JSON.parse(localStorage.getItem('quizScores') || '[]');
-    const newScore = {
+    const scores: ScoreData[] = JSON.parse(localStorage.getItem('quizScores') || '[]');
+    
+    // Crea il nuovo punteggio
+    const newScore: ScoreData = {
       score,
       date: new Date().toISOString(),
       total: totalQuestions,
       time: timeTaken
     };
-    
-    // Aggiorna i punteggi salvati
-    const updatedScores = [...scores, newScore]
-      .sort((a, b) => b.score - a.score || a.time - b.time)
-      .slice(0, 5);
-    
+
+    // Verifica se esiste già un punteggio identico
+    const isDuplicate = scores.some(
+      (s: ScoreData) => 
+        s.score === newScore.score && 
+        s.time === newScore.time && 
+        s.total === newScore.total
+    );
+
+    // Aggiorna i punteggi salvati solo se non è un duplicato
+    const updatedScores = isDuplicate 
+      ? scores 
+      : [...scores, newScore]
+          .sort((a, b) => b.score - a.score || a.time - b.time)
+          .slice(0, 5);
+
     localStorage.setItem('quizScores', JSON.stringify(updatedScores));
     setSavedScores(updatedScores);
-    
+
     // Aggiorna il miglior punteggio se necessario
     const bestScore = localStorage.getItem('bestScore');
     if (!bestScore || score > parseInt(bestScore)) {
@@ -127,7 +141,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({
           >
             Quiz Completato!
           </motion.h1>
-          
+
           <motion.div 
             className="current-score"
             variants={scoreVariants}
@@ -218,7 +232,6 @@ const QuizResults: React.FC<QuizResultsProps> = ({
             >
               <h2>Conferma Riavvio</h2>
               <p>Sei sicuro di voler ricominciare il quiz?</p>
-              
               <div className="modal-actions">
                 <motion.button 
                   onClick={handleRestart}
