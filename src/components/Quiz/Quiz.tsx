@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Question } from '../../types/quiz';
 import { Achievement, ACHIEVEMENTS } from '../../types/achievements';
-import { Difficulty, DifficultySettings, DIFFICULTY_SETTINGS } from '../../types/difficulty';
 import { motion, AnimatePresence } from 'framer-motion';
 import AchievementPopup from '../Achievements/AchievementPopup';
 import './Quiz.css';
+import { GameMode, GAME_MODES } from '../../types/gameMode';
+import GameModeSelector from '../GameModeSelector/GameModeSelector';
 
 interface QuizProps {
   questions: Question[];
@@ -25,34 +26,36 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
   const [correctStreak, setCorrectStreak] = useState(0);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
-  const [difficulty, setDifficulty] = useState<Difficulty | null>(null);
   const [quizStarted, setQuizStarted] = useState(false);
-
+  const [gameMode, setGameMode] = useState<GameMode | null>(null);
 
   const currentQuestion = questions[currentQuestionIndex];
-  const difficultySettings: DifficultySettings = difficulty
-    ? DIFFICULTY_SETTINGS[difficulty]
-    : DIFFICULTY_SETTINGS.normale;
+  const modeSettings = gameMode ? GAME_MODES[gameMode] : null;
 
   useEffect(() => {
-    if (currentQuestionIndex < questions.length && difficulty && quizStarted) {
-      setTimeLeft(difficultySettings.timeLimit);
-    }
-  }, [currentQuestionIndex, difficultySettings.timeLimit, difficulty, quizStarted]);
+    if (!gameMode || !quizStarted) return;
     
+    if (gameMode === 'timeAttack') {
+      if (currentQuestionIndex === 0) {
+        setTimeLeft(modeSettings!.timeLimit);
+      }
+    } else if (gameMode !== 'practice') {
+      setTimeLeft(modeSettings!.timeLimit);
+    }
+  }, [currentQuestionIndex, gameMode, quizStarted, modeSettings]);
 
   useEffect(() => {
-    if (timeLeft > 0 && !selectedAnswer && quizStarted) {
-      const timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
+    if (timeLeft > 0 && !selectedAnswer && quizStarted && gameMode !== 'practice') {
+      const timer = setTimeout(() => setTimeLeft(prev => prev - 1), 1000);
       return () => clearTimeout(timer);
-    } else if (timeLeft === 0 && !selectedAnswer && quizStarted) {
+    } else if (timeLeft === 0 && !selectedAnswer && quizStarted && gameMode !== 'practice') {
       handleTimeout();
     }
-  }, [timeLeft, selectedAnswer, quizStarted]);  
+  }, [timeLeft, selectedAnswer, quizStarted, gameMode]);
 
   const checkAchievements = (finalScore: number, totalTime: number) => {
     const newAchievements = ACHIEVEMENTS.filter(
-      (achievement) =>
+      achievement =>
         !achievements.includes(achievement) &&
         achievement.condition(finalScore, totalTime, questions.length)
     );
@@ -76,14 +79,11 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
     setShowFeedback(true);
     setFeedbackMessage('Tempo scaduto!');
     setCorrectStreak(0);
-    setTimeout(() => {
-      moveToNextQuestion(false);
-    }, 1000);
+    setTimeout(() => moveToNextQuestion(false), 1000);
   };
 
   const moveToNextQuestion = (isCorrect: boolean) => {
     setShowQuestion(false);
-    setScore((prev) => prev + (isCorrect ? difficultySettings.pointMultiplier : 0));
     setShowFeedback(false);
 
     setTimeout(() => {
@@ -92,7 +92,7 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
         checkAchievements(score, totalTime);
         onFinish(score, totalTime);
       } else {
-        setCurrentQuestionIndex((prev) => prev + 1);
+        setCurrentQuestionIndex(prev => prev + 1);
         setSelectedAnswer(null);
         setIsAnswerCorrect(null);
         setShowQuestion(true);
@@ -107,11 +107,31 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
     const isCorrect = answer === currentQuestion.correctAnswer;
     setIsAnswerCorrect(isCorrect);
     setShowFeedback(true);
+
+    if (gameMode === 'suddenDeath' && !isCorrect) {
+      setFeedbackMessage('Game Over! ☠️');
+      setTimeout(() => {
+        const totalTime = Math.floor((Date.now() - quizStartTime) / 1000);
+        onFinish(score, totalTime);
+      }, 1000);
+      return;
+    }
+
+    if (gameMode === 'practice') {
+      const feedback = isCorrect 
+        ? 'Corretto! 👍' 
+        : `Sbagliato 😔 La risposta corretta era: ${currentQuestion.correctAnswer}`;
+      setFeedbackMessage(feedback);
+      setTimeout(() => moveToNextQuestion(isCorrect), 2000);
+      return;
+    }
+
     if (isCorrect) {
       const newStreak = correctStreak + 1;
       setCorrectStreak(newStreak);
       setIsStreak(true);
       setFeedbackMessage(newStreak >= 3 ? '🔥 Hot Streak!' : 'Corretto! 👍');
+      setScore(prev => prev + modeSettings!.pointMultiplier);
     } else {
       setCorrectStreak(0);
       setIsStreak(false);
@@ -133,34 +153,16 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
     exit: { opacity: 0, y: 20 },
   };
 
-  if (!difficulty) {
-    return (
-      <div className="difficulty-selector">
-        <h2>Scegli la Difficoltà</h2>
-        <div className="difficulty-options">
-          {(Object.keys(DIFFICULTY_SETTINGS) as Difficulty[]).map((level) => {
-            const settings = DIFFICULTY_SETTINGS[level];
-            return (
-              <button
-                key={level}
-                className={`difficulty-option ${level}`}
-                onClick={() => {
-                  setDifficulty(level);
-                  setQuizStarted(true);
-                }}
-                style={{ backgroundColor: settings.color }}
-              >
-                <h3>{settings.name}</h3>
-                <p>Tempo limite: {settings.timeLimit}s</p>
-                <p>Moltiplicatore punti: x{settings.pointMultiplier}</p>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
+  if (!gameMode) {
+    return <GameModeSelector onSelect={(mode) => {
+      setGameMode(mode);
+      setQuizStarted(true);
+      const settings = GAME_MODES[mode];
+      if (settings.timeLimit) {
+        setTimeLeft(settings.timeLimit);
+      }
+    }} />;
   }
-  
 
   return (
     <div className="quiz-container">
@@ -174,22 +176,26 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
             {isStreak && <span className="streak-icon">🔥</span>}
           </div>
         </div>
-        <div className="quiz-timer-container">
-          <div className={`time-left ${timeLeft <= 5 ? 'time-critical' : ''}`}>{timeLeft}s</div>
-          <div className="quiz-timer">
-            <motion.div
-              className="quiz-timer-bar"
-              initial={{ width: '100%' }}
-              animate={{
-                width: `${(timeLeft / difficultySettings.timeLimit) * 100}%`,
-              }}
-              transition={{ duration: 1, ease: 'linear' }}
-            />
+
+        {gameMode !== 'practice' && (
+          <div className="quiz-timer-container">
+            <div className={`time-left ${timeLeft <= 5 ? 'time-critical' : ''}`}>
+              {timeLeft}s
+            </div>
+            <div className="quiz-timer">
+              <motion.div
+                className={`quiz-timer-bar ${gameMode}`}
+                initial={{ width: '100%' }}
+                animate={{
+                  width: `${(timeLeft / modeSettings!.timeLimit) * 100}%`,
+                }}
+                transition={{ duration: 1, ease: 'linear' }}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </motion.div>
 
-      {/* Feedback */}
       <AnimatePresence>
         {showFeedback && (
           <motion.div
@@ -204,7 +210,6 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
         )}
       </AnimatePresence>
 
-      {/* Question */}
       <AnimatePresence>
         {showQuestion && (
           <motion.div
@@ -244,10 +249,12 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
         )}
       </AnimatePresence>
 
-      {/* Achievements */}
       <AnimatePresence>
         {currentAchievement && (
-          <AchievementPopup achievement={currentAchievement} onClose={() => setCurrentAchievement(null)} />
+          <AchievementPopup 
+            achievement={currentAchievement} 
+            onClose={() => setCurrentAchievement(null)} 
+          />
         )}
       </AnimatePresence>
     </div>
