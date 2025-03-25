@@ -55,7 +55,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({
       ? scores 
       : [...scores, newScore]
           .sort((a, b) => b.score - a.score || a.time - b.time)
-          .slice(0, 5);
+          .slice(0, 3);
 
     localStorage.setItem('quizScores', JSON.stringify(updatedScores));
     setSavedScores(updatedScores);
