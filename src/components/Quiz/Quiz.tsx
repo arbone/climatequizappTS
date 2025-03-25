@@ -26,6 +26,8 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
   const [difficulty, setDifficulty] = useState<Difficulty | null>(null);
+  const [quizStarted, setQuizStarted] = useState(false);
+
 
   const currentQuestion = questions[currentQuestionIndex];
   const difficultySettings: DifficultySettings = difficulty
@@ -33,19 +35,20 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
     : DIFFICULTY_SETTINGS.normale;
 
   useEffect(() => {
-    if (currentQuestionIndex < questions.length) {
+    if (currentQuestionIndex < questions.length && difficulty && quizStarted) {
       setTimeLeft(difficultySettings.timeLimit);
     }
-  }, [currentQuestionIndex, difficultySettings.timeLimit]);
+  }, [currentQuestionIndex, difficultySettings.timeLimit, difficulty, quizStarted]);
+    
 
   useEffect(() => {
-    if (timeLeft > 0 && !selectedAnswer) {
+    if (timeLeft > 0 && !selectedAnswer && quizStarted) {
       const timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
       return () => clearTimeout(timer);
-    } else if (timeLeft === 0 && !selectedAnswer) {
+    } else if (timeLeft === 0 && !selectedAnswer && quizStarted) {
       handleTimeout();
     }
-  }, [timeLeft, selectedAnswer]);
+  }, [timeLeft, selectedAnswer, quizStarted]);  
 
   const checkAchievements = (finalScore: number, totalTime: number) => {
     const newAchievements = ACHIEVEMENTS.filter(
@@ -141,7 +144,10 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
               <button
                 key={level}
                 className={`difficulty-option ${level}`}
-                onClick={() => setDifficulty(level)}
+                onClick={() => {
+                  setDifficulty(level);
+                  setQuizStarted(true);
+                }}
                 style={{ backgroundColor: settings.color }}
               >
                 <h3>{settings.name}</h3>

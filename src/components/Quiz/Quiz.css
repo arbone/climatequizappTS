@@ -161,95 +161,17 @@
   to { transform: translateY(-4px); }
 }
 
-/* Nuovi stili per il sistema di difficoltà */
-.difficulty-badge {
-  background: linear-gradient(45deg, rgba(0,0,0,0.1), rgba(0,0,0,0));
-  padding: 8px 16px;
-  border-radius: 20px;
-  color: white;
-  font-weight: bold;
-  font-size: 0.9rem;
-  margin-bottom: 16px;
-  display: inline-block;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  animation: fade-in 0.5s ease;
-}
-
-/* Stili per il selettore di difficoltà */
+/* Container principale */
 .difficulty-selector {
-  max-width: 600px;
-  margin: 80px auto 0;
-  padding: 20px;
-  text-align: center;
-}
-
-.difficulty-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-top: 24px;
-}
-
-.difficulty-button {
-  padding: 20px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  align-items: center;
+  justify-content: center; /* Centra verticalmente */
+  align-items: center;    /* Centra orizzontalmente */
+  text-align: center;
+  height: 100vh;          /* Prende tutta l'altezza disponibile */
+  padding: 20px;
+  box-sizing: border-box;
 }
-
-.difficulty-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.difficulty-button h3 {
-  margin: 0;
-  font-size: 1.2rem;
-  color: white;
-}
-
-.difficulty-button p {
-  margin: 0;
-  font-size: 0.9rem;
-  opacity: 0.9;
-  color: white;
-}
-
-/* Colori specifici per ogni difficoltà */
-.difficulty-button.facile {
-  background: #4CAF50;
-}
-
-.difficulty-button.normale {
-  background: #2196F3;
-}
-
-.difficulty-button.difficile {
-  background: #FFC107;
-}
-
-.difficulty-button.esperto {
-  background: #F44336;
-}
-
-/* Animazione per il punteggio moltiplicato */
-.score-multiplier {
-  font-size: 0.8rem;
-  opacity: 0.8;
-  margin-left: 4px;
-  animation: fade-in 0.3s ease;
-}
-
-
 
 /* Titolo */
 .difficulty-selector h2 {
@@ -259,6 +181,7 @@
   margin-bottom: 30px;
 }
 
+
 /* Contenitore dei pulsanti */
 .difficulty-options {
   display: grid;
@@ -266,6 +189,23 @@
   gap: 15px;
   width: 100%;
   max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Badge per tempo limite e moltiplicatore */
+.difficulty-badge {
+  background: linear-gradient(45deg, rgba(0,0,0,0.1), rgba(0,0,0,0));
+  padding: 8px 16px;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  animation: fade-in 0.5s ease;
 }
 
 /* Stile dei pulsanti */
@@ -284,13 +224,13 @@
   cursor: pointer;
   color: #fff;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 /* Hover e animazioni */
 .difficulty-option:hover {
   transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
 
 /* Colori personalizzati per ogni difficoltà */
@@ -316,7 +256,17 @@
   font-size: 1rem;
   margin: 0;
   font-weight: normal;
-  opacity: 0.9;
+  color: inherit; /* Erede il colore del pulsante */
+  opacity: 1; /* Rimuovi l'effetto grigio traslucido */
+}
+
+
+/* Score multiplier */
+.score-multiplier {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-left: 4px;
+  animation: fade-in 0.3s ease;
 }
 
 /* Responsività */
@@ -328,5 +278,16 @@
   
   .difficulty-option p {
     font-size: 0.85rem;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
