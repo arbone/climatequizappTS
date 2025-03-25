@@ -160,3 +160,173 @@
   from { transform: translateY(0); }
   to { transform: translateY(-4px); }
 }
+
+/* Nuovi stili per il sistema di difficoltà */
+.difficulty-badge {
+  background: linear-gradient(45deg, rgba(0,0,0,0.1), rgba(0,0,0,0));
+  padding: 8px 16px;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  animation: fade-in 0.5s ease;
+}
+
+/* Stili per il selettore di difficoltà */
+.difficulty-selector {
+  max-width: 600px;
+  margin: 80px auto 0;
+  padding: 20px;
+  text-align: center;
+}
+
+.difficulty-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.difficulty-button {
+  padding: 20px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.difficulty-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.difficulty-button h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: white;
+}
+
+.difficulty-button p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  color: white;
+}
+
+/* Colori specifici per ogni difficoltà */
+.difficulty-button.facile {
+  background: #4CAF50;
+}
+
+.difficulty-button.normale {
+  background: #2196F3;
+}
+
+.difficulty-button.difficile {
+  background: #FFC107;
+}
+
+.difficulty-button.esperto {
+  background: #F44336;
+}
+
+/* Animazione per il punteggio moltiplicato */
+.score-multiplier {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-left: 4px;
+  animation: fade-in 0.3s ease;
+}
+
+
+
+/* Titolo */
+.difficulty-selector h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+/* Contenitore dei pulsanti */
+.difficulty-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Stile dei pulsanti */
+.difficulty-option {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  padding: 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Hover e animazioni */
+.difficulty-option:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Colori personalizzati per ogni difficoltà */
+.difficulty-option.facile {
+  background-color: #4caf50;
+}
+
+.difficulty-option.normale {
+  background-color: #2196f3;
+}
+
+.difficulty-option.difficile {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.difficulty-option.esperto {
+  background-color: #f44336;
+}
+
+/* Font-size per i dettagli */
+.difficulty-option p {
+  font-size: 1rem;
+  margin: 0;
+  font-weight: normal;
+  opacity: 0.9;
+}
+
+/* Responsività */
+@media (max-width: 480px) {
+  .difficulty-option {
+    font-size: 1rem;
+    padding: 15px;
+  }
+  
+  .difficulty-option p {
+    font-size: 0.85rem;
+  }
+}

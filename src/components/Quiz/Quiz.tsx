@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Question } from '../../types/quiz';
-import { Achievement, ACHIEVEMENTS } from '../../types/achievements';  // Aggiorna questo percorso
+import { Achievement, ACHIEVEMENTS } from '../../types/achievements';
+import { Difficulty, DifficultySettings, DIFFICULTY_SETTINGS } from '../../types/difficulty';
 import { motion, AnimatePresence } from 'framer-motion';
-import AchievementPopup from '../Achievements/AchievementPopup';  // Questo dovrebbe essere corretto
+import AchievementPopup from '../Achievements/AchievementPopup';
 import './Quiz.css';
-
 
 interface QuizProps {
   questions: Question[];
@@ -25,16 +25,22 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
   const [correctStreak, setCorrectStreak] = useState(0);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
+  const [difficulty, setDifficulty] = useState<Difficulty | null>(null);
 
   const currentQuestion = questions[currentQuestionIndex];
+  const difficultySettings: DifficultySettings = difficulty
+    ? DIFFICULTY_SETTINGS[difficulty]
+    : DIFFICULTY_SETTINGS.normale;
 
   useEffect(() => {
-    setTimeLeft(30);
-  }, [currentQuestionIndex]);
+    if (currentQuestionIndex < questions.length) {
+      setTimeLeft(difficultySettings.timeLimit);
+    }
+  }, [currentQuestionIndex, difficultySettings.timeLimit]);
 
   useEffect(() => {
     if (timeLeft > 0 && !selectedAnswer) {
-      const timer = setTimeout(() => setTimeLeft(prev => prev - 1), 1000);
+      const timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
       return () => clearTimeout(timer);
     } else if (timeLeft === 0 && !selectedAnswer) {
       handleTimeout();
@@ -42,9 +48,10 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
   }, [timeLeft, selectedAnswer]);
 
   const checkAchievements = (finalScore: number, totalTime: number) => {
-    const newAchievements = ACHIEVEMENTS.filter(achievement => 
-      !achievements.includes(achievement) && 
-      achievement.condition(finalScore, totalTime, questions.length)
+    const newAchievements = ACHIEVEMENTS.filter(
+      (achievement) =>
+        !achievements.includes(achievement) &&
+        achievement.condition(finalScore, totalTime, questions.length)
     );
 
     if (newAchievements.length > 0) {
@@ -73,20 +80,18 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
 
   const moveToNextQuestion = (isCorrect: boolean) => {
     setShowQuestion(false);
-    const newScore = isCorrect ? score + 1 : score;
-    setScore(newScore);
+    setScore((prev) => prev + (isCorrect ? difficultySettings.pointMultiplier : 0));
     setShowFeedback(false);
 
     setTimeout(() => {
       if (currentQuestionIndex === questions.length - 1) {
         const totalTime = Math.floor((Date.now() - quizStartTime) / 1000);
-        checkAchievements(newScore, totalTime);
-        onFinish(newScore, totalTime);
+        checkAchievements(score, totalTime);
+        onFinish(score, totalTime);
       } else {
-        setCurrentQuestionIndex(prev => prev + 1);
+        setCurrentQuestionIndex((prev) => prev + 1);
         setSelectedAnswer(null);
         setIsAnswerCorrect(null);
-        setTimeLeft(30);
         setShowQuestion(true);
       }
     }, 300);
@@ -99,46 +104,61 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
     const isCorrect = answer === currentQuestion.correctAnswer;
     setIsAnswerCorrect(isCorrect);
     setShowFeedback(true);
-
     if (isCorrect) {
       const newStreak = correctStreak + 1;
       setCorrectStreak(newStreak);
-      if (newStreak >= 3) {
-        setIsStreak(true);
-        setFeedbackMessage('🔥 Hot Streak!');
-      } else {
-        setFeedbackMessage('Corretto! 👍');
-      }
+      setIsStreak(true);
+      setFeedbackMessage(newStreak >= 3 ? '🔥 Hot Streak!' : 'Corretto! 👍');
     } else {
       setCorrectStreak(0);
       setIsStreak(false);
       setFeedbackMessage('Sbagliato 😔');
     }
 
-    setTimeout(() => {
-      moveToNextQuestion(isCorrect);
-    }, 1000);
+    setTimeout(() => moveToNextQuestion(isCorrect), 1000);
   };
 
   const questionVariants = {
     initial: { opacity: 0, x: 50 },
     animate: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: -50 }
+    exit: { opacity: 0, x: -50 },
   };
 
   const feedbackVariants = {
     initial: { opacity: 0, y: -20 },
     animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: 20 }
+    exit: { opacity: 0, y: 20 },
   };
+
+  if (!difficulty) {
+    return (
+      <div className="difficulty-selector">
+        <h2>Scegli la Difficoltà</h2>
+        <div className="difficulty-options">
+          {(Object.keys(DIFFICULTY_SETTINGS) as Difficulty[]).map((level) => {
+            const settings = DIFFICULTY_SETTINGS[level];
+            return (
+              <button
+                key={level}
+                className={`difficulty-option ${level}`}
+                onClick={() => setDifficulty(level)}
+                style={{ backgroundColor: settings.color }}
+              >
+                <h3>{settings.name}</h3>
+                <p>Tempo limite: {settings.timeLimit}s</p>
+                <p>Moltiplicatore punti: x{settings.pointMultiplier}</p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+  
 
   return (
     <div className="quiz-container">
-      <motion.div 
-        className="quiz-header"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
+      <motion.div className="quiz-header" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="quiz-progress">
           <div className="progress-text">
             Domanda {currentQuestionIndex + 1} di {questions.length}
@@ -148,26 +168,23 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
             {isStreak && <span className="streak-icon">🔥</span>}
           </div>
         </div>
-
         <div className="quiz-timer-container">
-          <div className={`time-left ${timeLeft <= 5 ? 'time-critical' : ''}`}>
-            {timeLeft}s
-          </div>
+          <div className={`time-left ${timeLeft <= 5 ? 'time-critical' : ''}`}>{timeLeft}s</div>
           <div className="quiz-timer">
             <motion.div
               className="quiz-timer-bar"
-              initial={{ width: "100%" }}
-              animate={{ 
-                width: `${(timeLeft / 30) * 100}%`,
-                backgroundColor: timeLeft > 15 ? '#4CAF50' : timeLeft > 5 ? '#FFC107' : '#F44336'
+              initial={{ width: '100%' }}
+              animate={{
+                width: `${(timeLeft / difficultySettings.timeLimit) * 100}%`,
               }}
-              transition={{ duration: 1, ease: "linear" }}
+              transition={{ duration: 1, ease: 'linear' }}
             />
           </div>
         </div>
       </motion.div>
 
-      <AnimatePresence mode='wait'>
+      {/* Feedback */}
+      <AnimatePresence>
         {showFeedback && (
           <motion.div
             className={`feedback-overlay ${isAnswerCorrect ? 'correct' : 'incorrect'}`}
@@ -181,7 +198,8 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
         )}
       </AnimatePresence>
 
-      <AnimatePresence mode='wait'>
+      {/* Question */}
+      <AnimatePresence>
         {showQuestion && (
           <motion.div
             key={currentQuestionIndex}
@@ -220,12 +238,10 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
         )}
       </AnimatePresence>
 
+      {/* Achievements */}
       <AnimatePresence>
         {currentAchievement && (
-          <AchievementPopup 
-            achievement={currentAchievement}
-            onClose={() => setCurrentAchievement(null)}
-          />
+          <AchievementPopup achievement={currentAchievement} onClose={() => setCurrentAchievement(null)} />
         )}
       </AnimatePresence>
     </div>
