@@ -6,7 +6,7 @@
       "dom.iterable",
       "esnext"
     ],
-    "types": ["jest", "node"],  // Aggiungi questa riga
+    "types": ["jest", "node", "styled-components"],  // Aggiungi questa riga
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,

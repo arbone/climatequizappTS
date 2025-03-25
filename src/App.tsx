@@ -6,6 +6,7 @@ import { quizQuestionsPool } from './data/quizQuestions';
 import { getRandomQuestions, shuffleOptions } from './data/quizUtils';
 import './App.css';
 
+
 const App: React.FC = () => {
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizFinished, setQuizFinished] = useState(false);

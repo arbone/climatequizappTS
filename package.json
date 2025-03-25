@@ -7,11 +7,13 @@
     "@testing-library/user-event": "^14.4.3",
     "@types/react": "^18.2.79",
     "@types/react-dom": "^18.2.25",
+    "@types/styled-components": "^5.1.26",
     "framer-motion": "^12.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-modal": "^3.16.3",
     "react-scripts": "5.0.1",
+    "styled-components": "^5.3.10",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
