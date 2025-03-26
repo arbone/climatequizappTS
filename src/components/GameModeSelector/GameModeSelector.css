@@ -1,19 +1,25 @@
-.gamemode-selector {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start; /* Cambiato da center a flex-start */
-  min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-  max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-  padding: calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom));
-  box-sizing: border-box;
-  background-color: #f5f5f5;
-  overflow-y: auto; /* Aggiunto overflow-y: auto */
-  -webkit-overflow-scrolling: touch; /* Per uno scrolling fluido su iOS */
-}
+  .gamemode-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh; /* Altezza fissa */
+    overflow-y: scroll; /* Forza lo scroll */
+    -webkit-overflow-scrolling: touch;
+    padding: calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom));
+    box-sizing: border-box;
+    background-color: #f5f5f5;
+  }
 
+  /* Opzionale: per nascondere la scrollbar ma mantenere la funzionalità */
+  .gamemode-selector {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
 
-  
+  .gamemode-selector::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+
   .gamemode-selector h2 {
     font-size: 2rem;
     color: #333;
