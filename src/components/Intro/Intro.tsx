@@ -10,7 +10,7 @@ const Intro: React.FC<IntroProps> = ({ onStart }) => {
   return (
     <div className="intro-container">
       <Loader />
-      <h1 className="intro-title">Benvenuto al Climate Quiz!</h1>
+      <h1 className="intro-title">Climate Quiz!</h1>
       <p className="intro-text">
         Metti alla prova le tue conoscenze sul cambiamento climatico e
         scopri quanto sei informato su un tema così importante per il nostro pianeta.
