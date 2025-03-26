@@ -1,4 +1,3 @@
-// components/GameModeSelector.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
 import { GameMode, GAME_MODES } from '../../types/gameMode';
@@ -31,9 +30,6 @@ const GameModeSelector: React.FC<GameModeSelectorProps> = ({ onSelect }) => {
                     <span>
                     ⏱️ {settings.name === 'Time Attack' ? `${settings.timeLimit}s` : `${settings.timeLimit}s per domanda`}
                     </span>
-                )}
-                {settings.livesCount && (
-                    <span>❤️ {settings.livesCount} {settings.livesCount === 1 ? 'vita' : 'vite'}</span>
                 )}
                 {settings.pointMultiplier > 0 && (
                     <span>🎯 x{settings.pointMultiplier} punti</span>
