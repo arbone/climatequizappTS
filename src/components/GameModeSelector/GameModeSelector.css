@@ -2,7 +2,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh; /* Altezza fissa */
     overflow-y: scroll; /* Forza lo scroll */
     -webkit-overflow-scrolling: touch;
     padding: calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom));
