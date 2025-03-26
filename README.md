@@ -76,16 +76,7 @@ Oppure deployato: climate-quiz.netlify.com
 
 ## 🏆 Sistema Achievement
 
-### Achievement Disponibili
-- **Velocista**: Completa il quiz in meno di 3 minuti
-- **Perfezionista**: Ottieni tutte le risposte corrette
-- **Mente Rapida**: Rispondi correttamente in meno di 10 secondi
-
 ## 📊 Sistema di Punteggio
-- Risposta corretta: +10 punti (base)
-- Bonus tempo: fino a +5 punti
-- Streak bonus: +2 punti per ogni risposta corretta consecutiva
-- Moltiplicatore modalità: applicato al punteggio totale
 
 ### Classificazione Finale
 - 0-3 risposte corrette: Principiante
