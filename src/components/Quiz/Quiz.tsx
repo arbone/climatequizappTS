@@ -32,6 +32,24 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
   const currentQuestion = questions[currentQuestionIndex];
   const modeSettings = gameMode ? GAME_MODES[gameMode] : null;
 
+  const handleReset = () => {
+    setCurrentQuestionIndex(0);
+    setScore(0);
+    setSelectedAnswer(null);
+    setIsAnswerCorrect(null);
+    setShowQuestion(true);
+    setShowFeedback(false);
+    setFeedbackMessage('');
+    setIsStreak(false);
+    setCorrectStreak(0);
+    setGameMode(null);
+    setQuizStarted(false);
+    
+    if (modeSettings?.timeLimit) {
+      setTimeLeft(modeSettings.timeLimit);
+    }
+  };
+
   const getTimerBarColor = (timeLeft: number, totalTime: number): string => {
     const percentage = (timeLeft / totalTime) * 100;
     if (percentage > 66) return 'high';
@@ -263,6 +281,17 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
           />
         )}
       </AnimatePresence>
+
+      <motion.button
+        className="reset-button"
+        onClick={handleReset}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        Ricomincia
+      </motion.button>
     </div>
   );
 };

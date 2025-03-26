@@ -9,7 +9,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
 }
 
 .progress-text {
@@ -214,4 +213,30 @@
   .quiz-header {
     margin-bottom: 20px;
   }
+
+  .reset-button {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%; /* Larghezza piena */
+    padding: 1rem;
+    font-size: 1rem;
+    background-color: #ff5252; /* Rosso acceso */
+    color: white;
+    border: none;
+    text-align: center;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 0; /* Rimuove angoli */
+    z-index: 10; /* Assicura che si trovi sopra agli altri elementi */
+  }
+  
+  .reset-button:hover {
+    background-color: #ff1744; /* Tonalità più scura per hover */
+  }
+  
+  .reset-button:active {
+    transform: scale(0.98); /* Clic visivo */
+  }
+  
   
