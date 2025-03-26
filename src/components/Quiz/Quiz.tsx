@@ -32,9 +32,15 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
   const currentQuestion = questions[currentQuestionIndex];
   const modeSettings = gameMode ? GAME_MODES[gameMode] : null;
 
+  const getTimerBarColor = (timeLeft: number, totalTime: number): string => {
+    const percentage = (timeLeft / totalTime) * 100;
+    if (percentage > 66) return 'high';
+    if (percentage > 33) return 'medium';
+    return 'low';
+  };
+
   useEffect(() => {
     if (!gameMode || !quizStarted) return;
-    
     if (gameMode === 'timeAttack') {
       if (currentQuestionIndex === 0) {
         setTimeLeft(modeSettings!.timeLimit);
@@ -184,7 +190,7 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
             </div>
             <div className="quiz-timer">
               <motion.div
-                className={`quiz-timer-bar ${gameMode}`}
+                className={`quiz-timer-bar ${getTimerBarColor(timeLeft, modeSettings!.timeLimit)} ${gameMode}`}
                 initial={{ width: '100%' }}
                 animate={{
                   width: `${(timeLeft / modeSettings!.timeLimit) * 100}%`,

@@ -1,20 +1,17 @@
-.results-container {
-    max-width: 600px;
+  .results-container {
+    width: 97%;
     margin: 2rem auto;
     padding: 2rem;
     background: white;
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     animation: fadeIn 0.3s ease-out;
-    /* Abilita lo scroll solo su desktop */
-    @media (min-width: 768px) {
-      overflow-y: auto;
-    }
-    /* Forza no scroll su mobile */
-    @media (max-width: 767px) {
-      overflow: hidden;
-    }
+    max-height: 80vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
+
+
   
   .results-title {
     text-align: center;

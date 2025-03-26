@@ -2,8 +2,7 @@
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
-  position: relative;
-  margin-top: 80px; /* Aggiungiamo spazio in alto per il feedback */
+  position: center;
 }
 
 .quiz-progress {
@@ -291,3 +290,36 @@
     transform: translateY(0);
   }
 }
+
+  /* Aggiungi questi stili per la barra del timer */
+  .quiz-timer-bar.high {
+    background-color: #4caf50;
+  }
+  
+  .quiz-timer-bar.medium {
+    background-color: #ffc107;
+  }
+  
+  .quiz-timer-bar.low {
+    background-color: #f44336;
+  }
+  
+  /* Game mode specific colors */
+  .quiz-timer-bar.suddenDeath {
+    background-color: #f44336;
+  }
+  
+  .quiz-timer-bar.timeAttack {
+    background-color: #2196f3;
+  }
+  
+  /* Ottimizzazione animazioni */
+  .quiz-timer-bar {
+    will-change: width, background-color;
+  }
+  
+  /* Header styling */
+  .quiz-header {
+    margin-bottom: 20px;
+  }
+  
