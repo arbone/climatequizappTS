@@ -290,7 +290,7 @@ const Quiz: React.FC<QuizProps> = ({ questions, onFinish }) => {
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
-        Ricomincia
+        Torna alla selezione della Modalità di Gioco
       </motion.button>
     </div>
   );

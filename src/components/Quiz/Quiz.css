@@ -218,25 +218,34 @@
     position: fixed;
     bottom: 0;
     left: 0;
-    width: 100%; /* Larghezza piena */
+    width: 100%;
     padding: 1rem;
-    font-size: 1rem;
-    background-color: #ff5252; /* Rosso acceso */
+    background-color: #ff5252;
     color: white;
     border: none;
-    text-align: center;
-    cursor: pointer;
     font-weight: bold;
-    border-radius: 0; /* Rimuove angoli */
-    z-index: 10; /* Assicura che si trovi sopra agli altri elementi */
+    cursor: pointer;
+    z-index: 10;
+    transition: background-color 0.2s ease;
+  }
+  
+  /* Stile specifico per PWA su iOS */
+  @supports (-webkit-touch-callout: none) {
+    @media (display-mode: standalone) {
+      .reset-button {
+        bottom: 25px; /* Spazio per la gesture bar di iOS */
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+      }
+    }
   }
   
   .reset-button:hover {
-    background-color: #ff1744; /* Tonalità più scura per hover */
+    background-color: #ff1744;
   }
   
   .reset-button:active {
-    transform: scale(0.98); /* Clic visivo */
+    transform: scale(0.98);
   }
+  
   
   
